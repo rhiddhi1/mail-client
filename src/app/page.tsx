@@ -1,69 +1,134 @@
-import Image from "next/image";
+import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="mailroom-shell">
+      <header className="topbar">
+        <Link className="wordmark" href="/" aria-label="Mailroom home">
+          <span className="wordmark-mark" aria-hidden="true">
+            m
+          </span>
+          <span>mailroom</span>
+        </Link>
+        <nav className="account-actions" aria-label="Account">
+          <Show when="signed-out">
+            <SignInButton mode="modal">
+              <button className="button button-quiet">Sign in</button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <button className="button button-dark">Create account</button>
+            </SignUpButton>
+          </Show>
+          <Show when="signed-in">
+            <Link className="button button-quiet" href="/dashboard">
+              Dashboard
+            </Link>
+            <UserButton />
+          </Show>
+        </nav>
+      </header>
+
+      <main className="home-main">
+        <section className="intro" aria-labelledby="home-title">
+          <div className="intro-copy">
+            <p className="eyebrow">
+              <span className="status-dot" /> A calmer kind of inbox
+            </p>
+            <h1 id="home-title">
+              Make space for <em>good</em> mail.
+            </h1>
+            <p className="intro-description">
+              A thoughtful home for your conversations. Sign in to pick up where
+              you left off, or create an account to get started.
+            </p>
+            <div className="intro-actions">
+              <Show when="signed-out">
+                <SignUpButton mode="modal">
+                  <button className="button button-coral">
+                    Open your inbox <span aria-hidden="true">&#8594;</span>
+                  </button>
+                </SignUpButton>
+                <SignInButton mode="modal">
+                  <button className="text-link">
+                    I already have an account
+                  </button>
+                </SignInButton>
+              </Show>
+              <Show when="signed-in">
+                <p className="signed-in-note">
+                  You’re signed in. Your inbox is ready.
+                </p>
+              </Show>
+            </div>
+            <div className="privacy-note">
+              <span aria-hidden="true">&#10003;</span> Your conversations stay
+              yours
+            </div>
+          </div>
+
+          <div
+            className="inbox-art"
+            aria-label="An illustration of a neatly organized inbox"
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+            <div className="art-orbit art-orbit-one" />
+            <div className="art-orbit art-orbit-two" />
+            <div className="mail-stack">
+              <div className="mail-sheet mail-sheet-back" />
+              <div className="mail-sheet mail-sheet-middle" />
+              <div className="mail-sheet mail-sheet-front">
+                <div className="sheet-topline">
+                  <span>INBOX</span>
+                  <span className="sheet-count">03</span>
+                </div>
+                <div className="sheet-rule" />
+                <div className="mail-row">
+                  <span className="mail-avatar avatar-coral">S</span>
+                  <span className="mail-lines">
+                    <i />
+                    <i />
+                  </span>
+                  <span className="mail-time">9:41</span>
+                </div>
+                <div className="mail-row">
+                  <span className="mail-avatar avatar-blue">J</span>
+                  <span className="mail-lines">
+                    <i />
+                    <i />
+                  </span>
+                  <span className="mail-time">9:18</span>
+                </div>
+                <div className="mail-row">
+                  <span className="mail-avatar avatar-yellow">A</span>
+                  <span className="mail-lines">
+                    <i />
+                    <i />
+                  </span>
+                  <span className="mail-time">8:56</span>
+                </div>
+                <div className="sheet-footer">
+                  <span /> All caught up, for now
+                </div>
+              </div>
+              <div className="art-stamp" aria-hidden="true">
+                M
+              </div>
+            </div>
+            <p className="art-caption">
+              A little less noise.
+              <br />A little more signal.
+            </p>
+          </div>
+        </section>
       </main>
+
+      <footer className="page-footer">
+        <span>
+          MAILROOM <span className="footer-separator">/</span> YOUR PERSONAL
+          INBOX
+        </span>
+        <span>Made for the messages that matter.</span>
+      </footer>
     </div>
   );
 }
