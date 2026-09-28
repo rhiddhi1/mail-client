@@ -1,7 +1,9 @@
+import { Button } from "@/components/ui/button";
+import { getAurinkoAuthURL } from "@/lib/aurinko";
 import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 
-export default function Dashboard() {
+export default async function Dashboard() {
   return (
     <div className="mailroom-shell">
       <header className="topbar">

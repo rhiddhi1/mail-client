@@ -1,4 +1,7 @@
 allowBuilds:
+  '@prisma/engines': true
   corsair: set this to true or false
+  esbuild: true
+  prisma: true
   sharp: false
   unrs-resolver: false

@@ -1,3 +1,6 @@
+"use client";
+import { Button } from "@/components/ui/button";
+import { getAurinkoAuthURL } from "@/lib/aurinko";
 import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 
@@ -25,6 +28,15 @@ export default function Home() {
               Dashboard
             </Link>
             <UserButton />
+            <Button
+              onClick={async () => {
+                const auth = await getAurinkoAuthURL("Google");
+                console.log(auth);
+                window.location.href = auth;
+              }}
+            >
+              Click ME
+            </Button>
           </Show>
         </nav>
       </header>
