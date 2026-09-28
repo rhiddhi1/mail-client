@@ -1,7 +1,56 @@
+import { exchangeCodeForAccessToken, getAccountDetails } from "@/lib/aurinko";
+import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { url } from "inspector";
+import { NextRequest, NextResponse } from "next/server";
 
-export const GET = async () => {
+export const GET = async (req: NextRequest) => {
   const { userId } = await auth();
-  return NextResponse.json({ message: "hello world" });
+
+  if (!userId)
+    return NextResponse.json({ message: "Unauthorized" }, { status: 400 });
+
+  const params = req.nextUrl.searchParams;
+  const status = params.get("status");
+  if (status != "success")
+    return NextResponse.json(
+      { message: "Failed to link account" },
+      { status: 400 },
+    );
+
+  const code = params.get("code");
+
+  if (!code)
+    return NextResponse.json({ message: "No code provided" }, { status: 400 });
+
+  const token = await exchangeCodeForAccessToken(code);
+
+  if (!token)
+    return NextResponse.json(
+      {
+        message: "Failed to exchange code for access token",
+      },
+      { status: 400 },
+    );
+
+  const accountDetails = await getAccountDetails(token.accessToken);
+
+  if (!accountDetails)
+    return NextResponse.json(
+      { message: "Failed to retrieve account details" },
+      { status: 502 },
+    );
+
+  await prisma.account.upsert({
+    where: { id: token.accountId.toString() },
+    update: { accessToken: token.accessToken },
+    create: {
+      id: token.accountId.toString(),
+      userId,
+      accessToken: token.accessToken,
+      emailAddress: accountDetails.email,
+      name: accountDetails.name,
+    },
+  });
+  return NextResponse.redirect(new URL("/mail", req.url));
 };

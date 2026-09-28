@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
+import axios from "axios";
 
 export const getAurinkoAuthURL = async (
   serviceType: "Google" | "Office365",
@@ -19,4 +20,60 @@ export const getAurinkoAuthURL = async (
   });
 
   return `https://api.aurinko.io/v1/auth/authorize?${params.toString()}`;
+};
+
+export const exchangeCodeForAccessToken = async (code: string) => {
+  const clientId = process.env.AURINKO_CLIENT_ID;
+  const clientSecret = process.env.AURINKO_CLIENT_SECRET;
+
+  if (!clientId || !clientSecret) {
+    throw new Error("Missing Aurinko client credentials");
+  }
+
+  try {
+    const response = await axios.post(
+      `https://api.aurinko.io/v1/auth/token/${code}`,
+      null,
+      {
+        auth: {
+          username: clientId,
+          password: clientSecret,
+        },
+      },
+    );
+
+    return response.data as {
+      accountId: number;
+      accessToken: string;
+      userId: string;
+      userSession: string;
+    };
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.log("Error getting access token", error.response?.data);
+    }
+
+    console.log(error);
+  }
+};
+
+export const getAccountDetails = async (accessToken: string) => {
+  try {
+    const response = await axios.get("https://api.aurinko.io/v1/account", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    return response.data as {
+      name: string;
+      email: string;
+    };
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.log("Error fetching account details", error.response?.data);
+    }
+
+    console.log(error);
+  }
 };
