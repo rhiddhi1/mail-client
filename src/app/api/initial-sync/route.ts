@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Account } from "@/lib/accounts";
 import axios from "axios";
+import { syncEmailsToDatabase } from "@/lib/sync-to-db";
 
 export const POST = async (req: NextRequest) => {
   let body: unknown;
@@ -12,7 +13,10 @@ export const POST = async (req: NextRequest) => {
   }
 
   if (!body || typeof body !== "object") {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 },
+    );
   }
 
   const { accountID, userId } = body as {
@@ -48,7 +52,7 @@ export const POST = async (req: NextRequest) => {
     //     data: { nextDeltaToken: deltaToken },
     //   });
 
-    //   await syncEmailsToDatabase(emails);
+    await syncEmailsToDatabase(emails);
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
@@ -66,9 +70,6 @@ export const POST = async (req: NextRequest) => {
       });
     }
 
-    return NextResponse.json(
-      { error: "Initial sync failed" },
-      { status: 502 },
-    );
+    return NextResponse.json({ error: "Initial sync failed" }, { status: 502 });
   }
 };
