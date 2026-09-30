@@ -1,9 +1,20 @@
-import { Button } from "@/components/ui/button";
 import { getAurinkoAuthURL } from "@/lib/aurinko";
+import prisma from "@/lib/prisma";
 import { UserButton } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default async function Dashboard() {
+  const { userId } = await auth();
+  if (!userId) redirect("/sign-in");
+
+  const account = await prisma.account.findFirst({
+    where: { userId, accessToken: { not: "" } },
+    select: { emailAddress: true },
+  });
+  const connectUrl = account ? null : await getAurinkoAuthURL("Google");
+
   return (
     <div className="mailroom-shell">
       <header className="topbar">
@@ -31,8 +42,19 @@ export default async function Dashboard() {
         </p>
         <h1>Dashboard</h1>
         <p className="dashboard-description">
-          Your Mailroom workspace is ready. Your inbox will live here.
+          {account
+            ? `Connected as ${account.emailAddress}. Your inbox is ready.`
+            : "Connect your email account to open your inbox."}
         </p>
+        {account ? (
+          <Link className="button button-dark" href="/mail">
+            Go to inbox
+          </Link>
+        ) : (
+          <a className="button button-coral" href={connectUrl ?? undefined}>
+            Connect mail
+          </a>
+        )}
       </main>
 
       <footer className="page-footer">
