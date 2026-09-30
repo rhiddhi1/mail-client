@@ -46,6 +46,7 @@ type MailItem = {
   accountId: string;
   folder: "inbox" | "sent" | "draft";
   labels: string[];
+  keywords: string[];
   classifications: string[];
   subject: string;
   receivedAt: string;
@@ -436,12 +437,12 @@ export default function MailboxView({ accounts, emails }: MailboxProps) {
                     setNotice("");
                   }}
                   aria-pressed={email.id === selectedId}
-                  className={`my-2 block w-full rounded-md border px-3 py-3 text-left transition-colors ${email.id === selectedId ? "border-[#505859] bg-[#222728]" : "border-[#303536] bg-[#1a1e1f] hover:border-[#484f50] hover:bg-[#202526]"}`}
+                  className={`mail-message-card block w-full rounded-md border text-left transition-colors ${email.id === selectedId ? "border-[#505859] bg-[#222728]" : "border-[#303536] bg-[#1a1e1f] hover:border-[#484f50] hover:bg-[#202526]"}`}
                 >
                   <span className="flex items-center justify-between gap-3">
                     <span className="flex min-w-0 items-center gap-2">
                       <span
-                        className={`truncate text-sm ${email.labels.includes("unread") ? "font-semibold text-white" : "font-medium text-[#d5d8d8]"}`}
+                        className={`mail-message-sender truncate ${email.labels.includes("unread") ? "font-semibold text-white" : "font-medium text-[#d5d8d8]"}`}
                       >
                         {email.from.name || email.from.address}
                       </span>
@@ -456,22 +457,29 @@ export default function MailboxView({ accounts, emails }: MailboxProps) {
                       {relativeDate(email.receivedAt)}
                     </span>
                   </span>
-                  <span className="mt-1 block truncate text-sm text-[#e0e2e2]">
+                  <span className="mail-message-subject block truncate text-[#e0e2e2]">
                     {email.subject || "(No subject)"}
                   </span>
-                  <span className="mt-2 line-clamp-2 block text-sm leading-5 text-[#969c9c]">
+                  <span className="mail-message-preview text-[#969c9c]">
                     {email.bodyText}
                   </span>
-                  {email.classifications.length > 0 && (
-                    <span className="mt-2 flex flex-wrap gap-1.5">
-                      {email.classifications
-                        .slice(0, 3)
-                        .map((classification) => (
+                  {[
+                    ...new Set([...email.keywords, ...email.classifications]),
+                  ].slice(0, 2).length > 0 && (
+                    <span className="mail-message-tags">
+                      {[
+                        ...new Set([
+                          ...email.keywords,
+                          ...email.classifications,
+                        ]),
+                      ]
+                        .slice(0, 2)
+                        .map((tag) => (
                           <span
-                            key={classification}
-                            className="rounded-full bg-[#101314] px-2.5 py-1 text-xs text-[#d1d4d4]"
+                            key={tag}
+                            className="mail-message-tag bg-[#101314] text-[#d1d4d4]"
                           >
-                            {classification}
+                            {tag}
                           </span>
                         ))}
                     </span>

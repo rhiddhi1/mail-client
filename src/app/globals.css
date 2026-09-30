@@ -115,6 +115,46 @@ button {
   min-height: 0;
 }
 
+.mail-message-card {
+  margin-block: 0.375rem;
+  padding: 0.625rem 0.75rem;
+}
+
+.mail-message-sender,
+.mail-message-subject {
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+}
+
+.mail-message-subject {
+  margin-top: 0.125rem;
+}
+
+.mail-message-preview {
+  display: -webkit-box;
+  margin-top: 0.25rem;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.mail-message-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-top: 0.375rem;
+}
+
+.mail-message-tag {
+  border-radius: 9999px;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6875rem;
+  line-height: 0.875rem;
+}
+
 @media (max-width: 767px) {
   .mailbox-layout {
     display: flex;
