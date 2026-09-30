@@ -1,5 +1,6 @@
 allowBuilds:
   "@prisma/engines": true
+  core-js-pure: true
   corsair: set this to true or false
   esbuild: true
   prisma: true
