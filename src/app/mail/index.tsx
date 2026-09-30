@@ -1,39 +1,72 @@
-import { Mail } from '@/app/mail/components/mail'
-import { cookies } from 'next/headers'
+import { auth } from "@clerk/nextjs/server";
+import prisma from "@/lib/prisma";
+import { redirect } from "next/navigation";
 
-export default function MailPage() {
+export default async function MailPage() {
+  const { userId } = await auth();
+  if (!userId) redirect("/sign-in");
 
-  const layout = cookies().get("react-resizable-panels:layout:mail")
-  const collapsed = cookies().get("react-resizable-panels:collapsed")
-
-  const defaultLayout = layout ? JSON.parse(layout.value) : undefined
-  const defaultCollapsed = collapsed ? JSON.parse(collapsed.value) : undefined
+  const emails = await prisma.email.findMany({
+    where: {
+      emailLabel: "inbox",
+      thread: { account: { userId } },
+    },
+    select: {
+      id: true,
+      subject: true,
+      receivedAt: true,
+      bodySnippet: true,
+      from: { select: { name: true, address: true } },
+    },
+    orderBy: { receivedAt: "desc" },
+    take: 100,
+  });
 
   return (
-    <>
-      <div className="md:hidden">
-        <img
-          src="/examples/mail-dark.png"
-          width={1280}
-          height={727}
-          alt="Mail"
-          className="hidden dark:block"
-        />
-        <img
-          src="/examples/mail-light.png"
-          width={1280}
-          height={727}
-          alt="Mail"
-          className="block dark:hidden"
-        />
+    <main className="min-h-screen bg-background text-foreground">
+      <div className="mx-auto max-w-5xl px-5 py-10 sm:px-8">
+        <header className="mb-6 border-b border-border pb-5">
+          <p className="text-sm text-muted-foreground">Mailroom</p>
+          <h1 className="mt-1 text-2xl font-semibold">Inbox</h1>
+        </header>
+
+        {emails.length === 0 ? (
+          <p className="py-12 text-center text-sm text-muted-foreground">
+            No stored inbox emails yet.
+          </p>
+        ) : (
+          <ul className="divide-y divide-border">
+            {emails.map((email) => (
+              <li key={email.id} className="py-4">
+                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                  <p className="font-medium">
+                    {email.from.name || email.from.address}
+                    {email.from.name && (
+                      <span className="ml-2 text-sm font-normal text-muted-foreground">
+                        {email.from.address}
+                      </span>
+                    )}
+                  </p>
+                  <time
+                    className="text-sm text-muted-foreground"
+                    dateTime={email.receivedAt.toISOString()}
+                  >
+                    {email.receivedAt.toLocaleDateString()}
+                  </time>
+                </div>
+                <h2 className="mt-1 font-medium">
+                  {email.subject || "(No subject)"}
+                </h2>
+                {email.bodySnippet && (
+                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                    {email.bodySnippet}
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
-      <div className="flex-col hidden md:flex h-screen overflow-scroll">
-        <Mail
-          defaultLayout={defaultLayout}
-          defaultCollapsed={defaultCollapsed}
-          navCollapsedSize={4}
-        />
-      </div>
-    </>
-  )
+    </main>
+  );
 }

@@ -30,5 +30,11 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "src/app/mail/components/**",
+    "src/app/mail/data.tsx",
+    "src/app/mail/use-thread.ts",
+    "src/app/mail/use-threads.tsx"
+  ]
 }
