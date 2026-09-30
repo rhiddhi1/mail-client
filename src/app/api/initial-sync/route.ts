@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { Account } from "@/lib/accounts";
+import { auth } from "@clerk/nextjs/server";
 import axios from "axios";
-import { syncEmailsToDatabase } from "@/lib/sync-to-db";
+import { performAccountInitialSync } from "@/lib/initial-sync";
 
 export const POST = async (req: NextRequest) => {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   let body: unknown;
   try {
     body = await req.json();
@@ -19,13 +24,12 @@ export const POST = async (req: NextRequest) => {
     );
   }
 
-  const { accountID, userId } = body as {
+  const { accountID } = body as {
     accountID?: unknown;
-    userId?: unknown;
   };
-  if (typeof accountID !== "string" || typeof userId !== "string") {
+  if (typeof accountID !== "string") {
     return NextResponse.json(
-      { error: "accountID and userId are required" },
+      { error: "accountID is required" },
       { status: 400 },
     );
   }
@@ -37,22 +41,8 @@ export const POST = async (req: NextRequest) => {
   if (!dbAccount)
     return NextResponse.json({ message: "No account found" }, { status: 404 });
 
-  const account = new Account(dbAccount.accessToken);
-
   try {
-    const { emails, deltaToken } = await account.performInitialSync();
-    console.log("Initial sync completed", {
-      accountID,
-      emailCount: emails.length,
-      deltaToken,
-    });
-
-    //   await prisma.account.update({
-    //     where: { id: accountID },
-    //     data: { nextDeltaToken: deltaToken },
-    //   });
-
-    await syncEmailsToDatabase(emails);
+    await performAccountInitialSync(accountID, dbAccount.accessToken);
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {

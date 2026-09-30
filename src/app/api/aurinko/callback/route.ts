@@ -1,7 +1,7 @@
 import { exchangeCodeForAccessToken, getAccountDetails } from "@/lib/aurinko";
+import { performAccountInitialSync } from "@/lib/initial-sync";
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
-import { url } from "inspector";
 import { NextRequest, NextResponse } from "next/server";
 import { waitUntil } from "@vercel/functions";
 import axios from "axios";
@@ -55,19 +55,25 @@ export const GET = async (req: NextRequest) => {
     },
   });
 
-  //trigger initial sync endpoint
   waitUntil(
-    axios
-      .post(`${process.env.NEXT_PUBLIC_URL}/api/initial-sync`, {
-        accountID: token.accountId.toString(),
-        userId,
-      })
-      .then((response) => {
-        console.log("Initial sync triggred", response.data);
-      })
-      .catch((error) => {
-        console.log("Failed to trigger initial sync", error);
-      }),
+    performAccountInitialSync(
+      token.accountId.toString(),
+      token.accessToken,
+    ).catch((error: unknown) => {
+      if (axios.isAxiosError(error)) {
+        console.error("Failed to run initial sync", {
+          message: error.message,
+          status: error.response?.status,
+          code: error.response?.data?.code,
+          responseMessage: error.response?.data?.message,
+        });
+      } else {
+        console.error(
+          "Failed to run initial sync",
+          error instanceof Error ? error.message : String(error),
+        );
+      }
+    }),
   );
 
   return NextResponse.redirect(new URL("/mail", req.url));
