@@ -98,6 +98,40 @@ button {
   font: inherit;
 }
 
+.mailbox-layout {
+  display: grid;
+  grid-template-columns: 14.125rem 26.5rem minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.mailbox-sidebar {
+  min-width: 0;
+  max-height: none;
+}
+
+.mailbox-list,
+.mailbox-reader {
+  min-width: 0;
+  min-height: 0;
+}
+
+@media (max-width: 767px) {
+  .mailbox-layout {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mailbox-sidebar {
+    width: 100%;
+    max-height: 15rem;
+  }
+
+  .mailbox-list {
+    width: 100%;
+    flex: 1 1 auto;
+  }
+}
+
 .mailroom-shell {
   min-height: 100vh;
   display: flex;
@@ -689,7 +723,8 @@ button {
   body {
     @apply bg-background text-foreground;
   }
-  button:not(:disabled), [role="button"]:not(:disabled) {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
     cursor: pointer;
   }
   html {
