@@ -81,7 +81,7 @@ DATABASE_URL=postgresql://<user>:<password>@<host>:5432/<database>?sslmode=requi
 AURINKO_CLIENT_ID=your_aurinko_client_id
 AURINKO_CLIENT_SECRET=your_aurinko_client_secret
 AURINKO_SIGNING_SECRET=your_aurinko_signing_secret
-NEXT_PUBLIC_URL=http://localhost:3000
+APP_URL=http://localhost:3000
 
 # OpenAI
 OPENAI_API_KEY=your_openai_api_key

@@ -10,12 +10,32 @@ export const getAurinkoAuthURL = async (
 
   if (!userId) throw new Error("unauthorized");
 
+  const appUrl = process.env.APP_URL;
+  if (!appUrl) {
+    throw new Error(
+      "APP_URL is required for the Aurinko callback. Set it to the absolute app URL, such as https://mail.example.com.",
+    );
+  }
+
+  let returnUrl: string;
+  try {
+    const url = new URL(appUrl);
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      throw new Error("Unsupported protocol");
+    }
+    returnUrl = new URL("/api/aurinko/callback", url).toString();
+  } catch {
+    throw new Error(
+      "APP_URL must be an absolute http:// or https:// URL, such as https://mail.example.com.",
+    );
+  }
+
   const params = new URLSearchParams({
     clientId: process.env.AURINKO_CLIENT_ID as string,
     serviceType,
     scopes: "Mail.Read Mail.Send",
     responseType: "code",
-    returnUrl: `${process.env.NEXT_PUBLIC_URL}/api/aurinko/callback`,
+    returnUrl,
     state: userId,
   });
 
