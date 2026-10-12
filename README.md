@@ -106,7 +106,7 @@ Open http://localhost:3000 in your browser.
 
 ```bash
 pnpm dev      # run the app in development mode
-pnpm build    # production build
+pnpm build    # generate Prisma Client and create the production build
 pnpm start    # run the production server
 pnpm lint     # eslint validation
 ```
