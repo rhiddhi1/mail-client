@@ -10,10 +10,10 @@ export const getAurinkoAuthURL = async (
 
   if (!userId) throw new Error("unauthorized");
 
-  const appUrl = process.env.APP_URL;
+  const appUrl = process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL;
   if (!appUrl) {
     throw new Error(
-      "APP_URL is required for the Aurinko callback. Set it to the absolute app URL, such as https://mail.example.com.",
+      "Set APP_URL or NEXT_PUBLIC_APP_URL to the absolute app URL, such as https://mail.example.com.",
     );
   }
 
@@ -26,7 +26,7 @@ export const getAurinkoAuthURL = async (
     returnUrl = new URL("/api/aurinko/callback", url).toString();
   } catch {
     throw new Error(
-      "APP_URL must be an absolute http:// or https:// URL, such as https://mail.example.com.",
+      "APP_URL or NEXT_PUBLIC_APP_URL must be an absolute http:// or https:// URL, such as https://mail.example.com.",
     );
   }
 
