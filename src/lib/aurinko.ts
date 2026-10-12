@@ -70,10 +70,18 @@ export const exchangeCodeForAccessToken = async (code: string) => {
     };
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
-      console.log("Error getting access token", error.response?.data);
+      console.error("Aurinko access-token exchange failed", {
+        status: error.response?.status,
+        code: error.response?.data?.code,
+        message: error.response?.data?.message,
+        requestId: error.response?.data?.requestId,
+      });
+    } else {
+      console.error(
+        "Aurinko access-token exchange failed",
+        error instanceof Error ? error.message : "Unknown error",
+      );
     }
-
-    console.log(error);
   }
 };
 
@@ -91,9 +99,17 @@ export const getAccountDetails = async (accessToken: string) => {
     };
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
-      console.log("Error fetching account details", error.response?.data);
+      console.error("Aurinko account lookup failed", {
+        status: error.response?.status,
+        code: error.response?.data?.code,
+        message: error.response?.data?.message,
+        requestId: error.response?.data?.requestId,
+      });
+    } else {
+      console.error(
+        "Aurinko account lookup failed",
+        error instanceof Error ? error.message : "Unknown error",
+      );
     }
-
-    console.log(error);
   }
 };
